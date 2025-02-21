@@ -3,7 +3,6 @@
         <title>Fill light</title>
         <style type="text/css">
             body {
-                background-color: #ffca6e;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -11,6 +10,66 @@
         </style>
     </head>
     <body>
-        <div>Click to go full screen</div>
+        <script>
+            function generateWarmColdColor(value) {
+                if (value < 0 || value > 1) {
+                    throw new Error("Input value must be between 0 and 1");
+                }
+
+                // Define lightness level (constant for all colors)
+                const lightness = 250; // Higher values keep it light (max 255)
+
+                // Adjusted cold and warm colors to ensure neutral gray at midpoint
+                const coldColor = { r: 160, g: 200, b: 255 }; // Cool blue tone
+                const warmColor = { r: 255, g: 180, b: 120 }; // Warm orange tone
+                const neutralColor = { r: 200, g: 200, b: 200 }; // Neutral gray at 0.5
+
+                let r, g, b;
+                if (value < 0.5) {
+                    // Interpolate between cold and neutral
+                    const factor = value * 2;
+                    r = Math.round(coldColor.r * (1 - factor) + neutralColor.r * factor);
+                    g = Math.round(coldColor.g * (1 - factor) + neutralColor.g * factor);
+                    b = Math.round(coldColor.b * (1 - factor) + neutralColor.b * factor);
+                } else {
+                    // Interpolate between neutral and warm
+                    const factor = (value - 0.5) * 2;
+                    r = Math.round(neutralColor.r * (1 - factor) + warmColor.r * factor);
+                    g = Math.round(neutralColor.g * (1 - factor) + warmColor.g * factor);
+                    b = Math.round(neutralColor.b * (1 - factor) + warmColor.b * factor);
+                }
+
+                // Normalize brightness to keep the perceived lightness roughly the same
+                const avgLightness = (r + g + b) / 3;
+                const factor = lightness / avgLightness;
+
+                const finalR = Math.min(255, Math.round(r * factor));
+                const finalG = Math.min(255, Math.round(g * factor));
+                const finalB = Math.min(255, Math.round(b * factor));
+
+                return `rgb(${finalR}, ${finalG}, ${finalB})`;
+            }
+
+            // When DOM is ready, add an event listener to the input range
+            
+            document.addEventListener("DOMContentLoaded", function() {
+                const input = document.querySelector("input[name='colortemp']");
+                const body = document.querySelector("body");
+
+                input.addEventListener("input", function(event) {
+                    const value = event.target.value;
+                    const color = generateWarmColdColor(value/100);
+                    body.style.backgroundColor = color;
+                    console.log(value, color);
+                });
+            });
+
+
+
+
+        </script>
+        <div>
+            <input type="range" name="colortemp" min="0" max="100"/>
+        </div>
     </body>
 </html>
